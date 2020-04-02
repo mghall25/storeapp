@@ -16,9 +16,11 @@ class ProductProvider extends Component {
         cartTax: 0,
         cartTotal:0
     };
+
     componentDidMount(){
         this.setProducts();
     }
+
     setProducts = () => {
         let tempProducts = [];
         storeProducts.forEach(item =>{
@@ -51,9 +53,13 @@ class ProductProvider extends Component {
         const price = product.price;
         product.total = price;
         {/* change state values */}
-        this.setState(()=>{
-            return {products: tempProducts, cart: [...this.state.cart, product]};
-            },()=>{console.log("Cart: ",this.state)})
+        this.setState(
+            ()=>{
+                return {products: tempProducts, cart: [...this.state.cart, product]};
+            },
+            ()=>{
+                this.addTotals();
+            })
     };
 
     openModal = id =>{
@@ -82,7 +88,30 @@ class ProductProvider extends Component {
     };
 
     clearCart = () => {
-       console.log('cart cleared - clearCart method');
+       this.setState(
+           () => {
+               return {cart: []};
+           },
+           ()=>{
+               this.setProducts();
+               console.log('set products');
+               this.addTotals();
+           });
+    };
+
+    addTotals = () => {
+        let subTotal = 0;
+        this.state.cart.map(item => (subTotal += item.total));
+        const tempTax = subTotal * 0.1;
+        const tax = tempTax;
+        const total = subTotal + tax;
+        this.setState(() => {
+            return {
+                cartSubTotal: parseFloat(subTotal).toFixed(2),
+                cartTax: parseFloat(tax).toFixed(2),
+                cartTotal: parseFloat(total).toFixed(2)
+            }
+        })
     };
 
     render() {
